@@ -1,0 +1,45 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="1280" d:DesignHeight="820"
+             xmlns:ui="using:FluentAvalonia.UI.Controls"
+             x:Class="ClassSoftwareHubCrossPlatformEdition.Pages.ShellPage">
+
+    <ui:FANavigationView x:Name="Nav"
+                         PaneDisplayMode="LeftCompact"
+                         OpenPaneLength="252"
+                         CompactModeThresholdWidth="820"
+                         ExpandedModeThresholdWidth="1180"
+                         IsSettingsVisible="False"
+                         Background="Transparent"
+                         SelectionChanged="Nav_SelectionChanged"
+                         BackRequested="Nav_BackRequested"
+                         ItemInvoked="Nav_ItemInvoked">
+
+        <!-- 窗格顶部：站点图标 + 名字（WinUI 那边在自绘标题栏里，跨平台版交给系统的标题栏，这里只留品牌） -->
+        <ui:FANavigationView.PaneHeader>
+            <StackPanel Orientation="Horizontal" Spacing="10" Margin="4,4,4,8">
+                <Image x:Name="TitleIcon" Width="18" Height="18" />
+                <TextBlock x:Name="TitleText" Text="ClassSoftwareHub"
+                           FontSize="12" FontWeight="Bold" VerticalAlignment="Center" />
+            </StackPanel>
+        </ui:FANavigationView.PaneHeader>
+
+        <!-- 窗格底部：深色 / 浅色 一键切换（图标显示「点了会切到的那一边」） -->
+        <ui:FANavigationView.PaneFooter>
+            <Button x:Name="ThemeButton" Click="ThemeButton_Click"
+                    HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
+                    Background="Transparent" BorderThickness="0" Padding="12,8" CornerRadius="4"
+                    ToolTip.Tip="切换深浅色">
+                <StackPanel Orientation="Horizontal" Spacing="14">
+                    <ui:FASymbolIcon x:Name="ThemeIcon" Symbol="WeatherMoon" FontSize="16" />
+                    <TextBlock Text="外观" VerticalAlignment="Center" />
+                </StackPanel>
+            </Button>
+        </ui:FANavigationView.PaneFooter>
+
+        <!-- CacheSize=0：页面不留在内存里（教学机内存小，切页就回收，别一路涨上去） -->
+        <ui:FAFrame x:Name="ContentFrame" CacheSize="0" />
+    </ui:FANavigationView>
+</UserControl>

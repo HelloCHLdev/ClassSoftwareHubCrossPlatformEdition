@@ -1,0 +1,168 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="900"
+             xmlns:ui="using:FluentAvalonia.UI.Controls"
+             xmlns:core="using:ClassSoftwareHubCrossPlatformEdition.Core"
+             xmlns:pages="using:ClassSoftwareHubCrossPlatformEdition.Pages"
+             x:Class="ClassSoftwareHubCrossPlatformEdition.Pages.WelcomePage">
+
+    <UserControl.Styles>
+        <Style Selector="Border.qllink">
+            <Setter Property="Background" Value="Transparent" />
+        </Style>
+
+        <Style Selector="Border.qllink TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
+        </Style>
+
+        <Style Selector="Border.qllink.accent">
+            <Setter Property="Background" Value="{DynamicResource AccentFillColorDefaultBrush}" />
+        </Style>
+
+        <Style Selector="Border.qllink.accent TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource TextOnAccentFillColorPrimaryBrush}" />
+        </Style>
+
+        <Style Selector="Border.qllink.accent ui|FASymbolIcon">
+            <Setter Property="Foreground" Value="{DynamicResource TextOnAccentFillColorPrimaryBrush}" />
+        </Style>
+    </UserControl.Styles>
+
+    <UserControl.Resources>
+
+        <DataTemplate x:Key="QuickLinkTemplate" x:DataType="core:QuickLink">
+            <Border Classes="qllink" Classes.accent="{Binding Accent}"
+                    Width="192" Height="88" CornerRadius="8" Padding="12,10"
+                    Tag="{Binding Url}">
+                <StackPanel Spacing="7" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <ui:FASymbolIcon Symbol="{Binding Symbol}" FontSize="24"
+                                     HorizontalAlignment="Center" Opacity="0.95" />
+                    <TextBlock Text="{Binding Name}" FontSize="13" HorizontalAlignment="Center"
+                               TextTrimming="CharacterEllipsis" MaxLines="1" MaxWidth="168" />
+                </StackPanel>
+            </Border>
+        </DataTemplate>
+    </UserControl.Resources>
+
+    <ScrollViewer Padding="24,36,24,44" HorizontalScrollBarVisibility="Auto"
+                  VerticalScrollBarVisibility="Auto">
+        <!--
+          ⚠️ 别用 Stretch + MaxWidth：一旦触发上限，中列会被甩到一边 → 看起来就是「变形」。
+          这里用「三列 Grid：* / 960 / *」把内容钉在中间 960 宽，导航展开或收起都不动。
+        -->
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*" />
+                <ColumnDefinition Width="998*" MaxWidth="960" />
+                <ColumnDefinition Width="1*" />
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="1" Spacing="14">
+
+                <TextBlock Text="ClassSoftwareHub" FontSize="44" FontWeight="Bold" />
+
+                <TextBlock x:Name="HomeTitleText" FontSize="24" FontWeight="Bold" TextWrapping="Wrap" />
+
+                <!-- 图片（高 140，宽按比例）+ 版本号（左）+ 代号 Tack（右，别跟版本号挤一起） -->
+                <Grid ColumnSpacing="20" Margin="0,10,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <Border CornerRadius="8" BorderThickness="1"
+                            BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                            Background="{DynamicResource CardBackgroundFillColorDefaultBrush}">
+                        <Image x:Name="Banner" Height="140" Stretch="Uniform" />
+                    </Border>
+
+                    <StackPanel Grid.Column="1" VerticalAlignment="Top" Spacing="2" HorizontalAlignment="Left">
+                        <TextBlock x:Name="SiteVersionText" FontSize="28" FontWeight="Bold" />
+                        <TextBlock x:Name="AppVersionText" FontSize="12.5" Opacity="0.65" />
+                    </StackPanel>
+
+                    <!-- 应用代号：贴右（跟顶上那串版本号岔开，不打架） -->
+                    <StackPanel Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Bottom">
+                        <TextBlock Text="代号" FontSize="11" Opacity="0.6" HorizontalAlignment="Right" />
+                        <TextBlock x:Name="CodeNameText" Text="Tack" FontSize="30" FontWeight="Bold"
+                                   Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}" />
+                    </StackPanel>
+                </Grid>
+
+                <TextBlock Text="快速开始" FontSize="22" FontWeight="Bold" Margin="0,20,0,4" />
+
+                <!-- 更宽的一行：体验网页版（主题色底） -->
+                <Border x:Name="WebCard" Tag="web" Height="60" CornerRadius="8" Padding="20,0"
+                        Background="{DynamicResource AccentFillColorDefaultBrush}"
+                        PointerEntered="Card_PointerEntered" PointerExited="Card_PointerExited"
+                        Tapped="Card_Tapped">
+                    <Grid ColumnSpacing="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <ui:FASymbolIcon Symbol="Globe" FontSize="20" VerticalAlignment="Center"
+                                         Foreground="{DynamicResource TextOnAccentFillColorPrimaryBrush}" />
+                        <TextBlock Grid.Column="1" Text="体验网页版" FontSize="15" FontWeight="Bold"
+                                   VerticalAlignment="Center"
+                                   Foreground="{DynamicResource TextOnAccentFillColorPrimaryBrush}" />
+                        <ui:FASymbolIcon Grid.Column="2" Symbol="ChevronRight" FontSize="13"
+                                         VerticalAlignment="Center"
+                                         Foreground="{DynamicResource TextOnAccentFillColorPrimaryBrush}" />
+                    </Grid>
+                </Border>
+
+                <!-- 两张等大卡片 -->
+                <Grid ColumnSpacing="16" Height="60">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" Tag="apps" CornerRadius="8" Padding="20,0"
+                            Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                            BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="1"
+                            PointerEntered="Card_PointerEntered" PointerExited="Card_PointerExited"
+                            Tapped="Card_Tapped">
+                        <StackPanel Orientation="Horizontal" Spacing="16" VerticalAlignment="Center">
+                            <ui:FASymbolIcon Symbol="Download" FontSize="20" />
+                            <TextBlock Text="下载首页" FontSize="15" FontWeight="Bold" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Border>
+
+                    <Border Grid.Column="1" Tag="tools" CornerRadius="8" Padding="20,0"
+                            Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                            BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="1"
+                            PointerEntered="Card_PointerEntered" PointerExited="Card_PointerExited"
+                            Tapped="Card_Tapped">
+                        <StackPanel Orientation="Horizontal" Spacing="16" VerticalAlignment="Center">
+                            <ui:FASymbolIcon Symbol="AllApps" FontSize="20" />
+                            <TextBlock Text="内置工具" FontSize="15" FontWeight="Bold" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <!-- ===== 一行快捷入口：图标在上、文字在下（不用卡片、不加标题） ===== -->
+                <ItemsControl x:Name="QuickGrid" Classes="cshcard" Margin="0,14,0,0"
+                              ItemTemplate="{StaticResource QuickLinkTemplate}"
+                              Tapped="Quick_Tapped">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+
+                <!-- ===== 硬件信息 / 系统信息：列表形式（不用卡片），行在 code-behind 里填 ===== -->
+                <TextBlock Text="硬件信息" FontSize="22" FontWeight="Bold" Margin="0,20,0,2" />
+                <StackPanel x:Name="HardwareList" Margin="2,0,0,0" />
+
+                <TextBlock Text="系统信息" FontSize="22" FontWeight="Bold" Margin="0,22,0,2" />
+                <StackPanel x:Name="SystemList" Margin="2,0,0,0" />
+            </StackPanel>
+        </Grid>
+    </ScrollViewer>
+</UserControl>

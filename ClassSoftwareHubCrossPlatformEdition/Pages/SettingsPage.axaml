@@ -1,0 +1,414 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="1000"
+             xmlns:ui="using:FluentAvalonia.UI.Controls"
+             xmlns:core="using:ClassSoftwareHubCrossPlatformEdition.Core"
+             x:Class="ClassSoftwareHubCrossPlatformEdition.Pages.SettingsPage">
+
+    <UserControl.Styles>
+        <Style Selector="Border.qllink">
+            <Setter Property="Background" Value="Transparent" />
+        </Style>
+
+        <Style Selector="Border.qllink TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
+        </Style>
+
+        <Style Selector="Border.qllink.accent">
+            <Setter Property="Background" Value="{DynamicResource AccentFillColorDefaultBrush}" />
+        </Style>
+
+        <Style Selector="Border.qllink.accent TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource TextOnAccentFillColorPrimaryBrush}" />
+        </Style>
+
+        <Style Selector="Border.qllink.accent ui|FASymbolIcon">
+            <Setter Property="Foreground" Value="{DynamicResource TextOnAccentFillColorPrimaryBrush}" />
+        </Style>
+
+        <!-- 分隔线：卡片里一排排设置项之间的那道 1px -->
+        <Style Selector="Border.hr">
+            <Setter Property="Height" Value="1" />
+            <Setter Property="Background" Value="{DynamicResource CardStrokeColorDefaultBrush}" />
+        </Style>
+    </UserControl.Styles>
+
+    <UserControl.Resources>
+        <!-- 快捷入口两套配色（同首页）：Avalonia 12 没有 DataTemplateSelector，用单模板 + Classes.accent 切 -->
+
+        <DataTemplate x:Key="QuickLinkTemplate" x:DataType="core:QuickLink">
+            <Border Classes="qllink" Classes.accent="{Binding Accent}"
+                    Width="192" Height="88" CornerRadius="8" Padding="12,10"
+                    Tag="{Binding Url}">
+                <StackPanel Spacing="7" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <ui:FASymbolIcon Symbol="{Binding Symbol}" FontSize="24"
+                                     HorizontalAlignment="Center" Opacity="0.95" />
+                    <TextBlock Text="{Binding Name}" FontSize="13" HorizontalAlignment="Center"
+                               TextTrimming="CharacterEllipsis" MaxLines="1" MaxWidth="168" />
+                </StackPanel>
+            </Border>
+        </DataTemplate>
+
+    </UserControl.Resources>
+
+    <ScrollViewer Padding="24,36,24,44" VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled">
+        <!-- 和首页同一套版式：三列 Grid 把内容钉在中间 960 宽，导航展开/收起都不动 -->
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*" />
+                <ColumnDefinition Width="998*" MaxWidth="960" />
+                <ColumnDefinition Width="1*" />
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="1" Spacing="14">
+
+                <TextBlock Text="设置" FontSize="30" FontWeight="Bold" />
+
+                <!-- ===== 关于（最上，不要卡片底，自成一块区域） ===== -->
+                <StackPanel Spacing="4" Margin="0,10,0,0">
+                    <StackPanel Orientation="Horizontal" Spacing="14">
+                        <Image x:Name="AboutIcon" Width="44" Height="44" VerticalAlignment="Center" />
+                        <TextBlock x:Name="AboutApp" Text="ClassSoftwareHub" FontSize="26" FontWeight="Bold"
+                                   VerticalAlignment="Center" />
+                    </StackPanel>
+                    <TextBlock x:Name="AboutVersion" FontSize="32" FontWeight="Bold" Margin="0,6,0,0"
+                               Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}" />
+                    <TextBlock x:Name="AboutSiteVersion" FontSize="13" Opacity="0.75" />
+                </StackPanel>
+
+                <!-- 相关链接（在版本号下面，跟首页那行同款） -->
+                <ItemsControl x:Name="SettingsQuickGrid" Classes="cshcard" Margin="0,6,0,0"
+                              ItemTemplate="{StaticResource QuickLinkTemplate}"
+                              Tapped="Quick_Tapped">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+
+                <!-- ===== 外观 ===== -->
+                <TextBlock Text="外观" FontSize="20" FontWeight="Bold" Margin="0,12,0,0" />
+                <Border CornerRadius="8"
+                        Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                        BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="1">
+                    <StackPanel Spacing="0">
+                        <Grid ColumnSpacing="16" Margin="20,8,12,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="颜色模式" VerticalAlignment="Center" />
+                            <ComboBox x:Name="ThemeCombo" Grid.Column="1" MinWidth="170"
+                                      SelectionChanged="ThemeChoice_SelectionChanged">
+                                <ComboBoxItem Content="跟随系统" Tag="system" />
+                                <ComboBoxItem Content="浅色" Tag="light" />
+                                <ComboBoxItem Content="深色" Tag="dark" />
+                            </ComboBox>
+                        </Grid>
+
+                        <Border Classes="hr" />
+
+                        <Grid ColumnSpacing="16" Margin="20,8,12,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Spacing="2" VerticalAlignment="Center">
+                                <TextBlock Text="外部组件单独设置外观" />
+                                <TextBlock FontSize="12" Opacity="0.6" TextWrapping="Wrap"
+                                           Text="外部组件 = 屏幕侧边栏、常用工具浮窗、截图编辑窗（主界面不受影响）" />
+                            </StackPanel>
+                            <ToggleSwitch x:Name="SplitThemeSwitch" Grid.Column="1" OnContent="开" OffContent="关" MinWidth="0"
+                                          IsCheckedChanged="SplitTheme_Toggled" />
+                        </Grid>
+
+                        <Border Classes="hr" />
+
+                        <Grid ColumnSpacing="16" Margin="20,8,12,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Spacing="2" VerticalAlignment="Center">
+                                <TextBlock Text="外部组件外观" />
+                                <TextBlock x:Name="ExtThemeHint" FontSize="12" Opacity="0.6" TextWrapping="Wrap" />
+                            </StackPanel>
+                            <ComboBox x:Name="ExtThemeCombo" Grid.Column="1" MinWidth="170"
+                                      SelectionChanged="ExtTheme_SelectionChanged">
+                                <ComboBoxItem Content="跟随系统" Tag="system" />
+                                <ComboBoxItem Content="浅色" Tag="light" />
+                                <ComboBoxItem Content="深色" Tag="dark" />
+                            </ComboBox>
+                        </Grid>
+
+                        <Border Classes="hr" />
+
+                        <Grid ColumnSpacing="16" Margin="20,8,12,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="窗口背景效果" VerticalAlignment="Center" />
+                            <ComboBox x:Name="BackdropCombo" Grid.Column="1" MinWidth="170"
+                                      SelectionChanged="BackdropChoice_SelectionChanged">
+                                <ComboBoxItem Content="亚克力（半透明）" Tag="acrylic" />
+                                <ComboBoxItem Content="云母（更接近系统窗口）" Tag="mica" />
+                                <ComboBoxItem Content="纯色（最省性能）" Tag="solid" />
+                            </ComboBox>
+                        </Grid>
+
+                        <Border Classes="hr" />
+
+                        <TextBlock Text="主界面、常用工具浮窗、截图编辑窗都跟着这个走（截图框选层和钉图不参与）"
+                                   FontSize="12.5" Opacity="0.75" TextWrapping="Wrap"
+                                   Margin="20,10,20,14" />
+                        <TextBlock Text="跨平台版说明：WinUI 的 Mica / Acrylic 是 Windows 合成器的能力，这里改成 Avalonia 的 TransparencyLevelHint —— 系统给得了就用系统给的模糊，给不了（Linux、老系统）自动落纯色，三档看着都还是同一套主题色。"
+                                   FontSize="12" Opacity="0.6" TextWrapping="Wrap" Margin="20,0,20,14" />
+                    </StackPanel>
+                </Border>
+
+                <!-- ===== 窗口 ===== -->
+                <TextBlock Text="窗口" FontSize="20" FontWeight="Bold" Margin="0,12,0,0" />
+                <Border CornerRadius="8"
+                        Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                        BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="1">
+                    <StackPanel Spacing="0">
+                        <Grid ColumnSpacing="16" Margin="20,8,12,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="窗口始终置于最前" VerticalAlignment="Center" />
+                            <ToggleSwitch x:Name="TopMostSwitch" Grid.Column="1" OnContent="开" OffContent="关" MinWidth="0"
+                                          IsCheckedChanged="TopMostSwitch_Toggled" />
+                        </Grid>
+
+                        <Border Classes="hr" />
+
+                        <Grid ColumnSpacing="16" Margin="20,8,12,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="开机自动启动" VerticalAlignment="Center" />
+                            <ToggleSwitch x:Name="AutoStartSwitch" Grid.Column="1" OnContent="开" OffContent="关" MinWidth="0"
+                                          IsCheckedChanged="AutoStartSwitch_Toggled" />
+                        </Grid>
+
+                        <Border Classes="hr" />
+
+                        <Grid ColumnSpacing="16" Margin="20,8,12,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Spacing="2" VerticalAlignment="Center">
+                                <TextBlock Text="开机时最小化启动" />
+                                <TextBlock x:Name="MinimizeHint" FontSize="12" Opacity="0.6" TextWrapping="Wrap" />
+                            </StackPanel>
+                            <ToggleSwitch x:Name="MinimizeSwitch" Grid.Column="1" OnContent="开" OffContent="关" MinWidth="0"
+                                          IsCheckedChanged="MinimizeSwitch_Toggled" />
+                        </Grid>
+
+                        <Border Classes="hr" />
+
+                        <Grid ColumnSpacing="16" Margin="20,8,12,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="点关闭时收进托盘" VerticalAlignment="Center" />
+                            <ToggleSwitch x:Name="TraySwitch" Grid.Column="1" OnContent="开" OffContent="关" MinWidth="0"
+                                          IsCheckedChanged="TraySwitch_Toggled" />
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- ===== 常用工具 ===== -->
+                <TextBlock Text="常用工具" FontSize="20" FontWeight="Bold" Margin="0,12,0,0" />
+                <Border CornerRadius="8"
+                        Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                        BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="1">
+                    <StackPanel Spacing="0">
+                        <Grid ColumnSpacing="16" Margin="20,8,12,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="常用工具窗口始终置顶" VerticalAlignment="Center" />
+                            <ToggleSwitch x:Name="PaletteTopSwitch" Grid.Column="1" OnContent="开" OffContent="关" MinWidth="0"
+                                          IsCheckedChanged="PaletteTopSwitch_Toggled" />
+                        </Grid>
+
+                        <Border Classes="hr" />
+
+                        <Grid ColumnSpacing="16" Margin="20,8,12,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Spacing="2" VerticalAlignment="Center">
+                                <TextBlock Text="屏幕边缘侧边栏" />
+                                <TextBlock FontSize="12" Opacity="0.6" TextWrapping="Wrap"
+                                           Text="跨平台版还没有这条常驻侧边浮窗；模块清单在「侧边布局」页里配，配好了会先存在设置里。" />
+                            </StackPanel>
+                            <ToggleSwitch x:Name="SidebarSwitch" Grid.Column="1" OnContent="开" OffContent="关" MinWidth="0"
+                                          IsCheckedChanged="SidebarSwitch_Toggled" />
+                        </Grid>
+
+                        <Border Classes="hr" />
+
+                        <StackPanel Spacing="8" Margin="20,8,12,8">
+                            <TextBlock Text="侧边栏贴在哪条边" />
+                            <StackPanel Orientation="Horizontal" Spacing="12">
+                                <RadioButton x:Name="EdgeLeft" GroupName="SidebarEdge" Tag="left" Content="左边"
+                                             MinWidth="0" IsCheckedChanged="Edge_Checked" />
+                                <RadioButton x:Name="EdgeRight" GroupName="SidebarEdge" Tag="right" Content="右边"
+                                             MinWidth="0" IsCheckedChanged="Edge_Checked" />
+                                <RadioButton x:Name="EdgeTop" GroupName="SidebarEdge" Tag="top" Content="上边"
+                                             MinWidth="0" IsCheckedChanged="Edge_Checked" />
+                                <RadioButton x:Name="EdgeBottom" GroupName="SidebarEdge" Tag="bottom" Content="下边"
+                                             MinWidth="0" IsCheckedChanged="Edge_Checked" />
+                                <TextBlock Text="也可以直接把它拖到别的边。" FontSize="12" Opacity="0.6"
+                                           VerticalAlignment="Center" TextWrapping="Wrap" />
+                            </StackPanel>
+                        </StackPanel>
+
+                        <Border Classes="hr" />
+
+                        <Grid ColumnSpacing="16" Margin="20,8,12,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Spacing="2" VerticalAlignment="Center">
+                                <TextBlock Text="截图后自动保存一份原图" />
+                                <TextBlock FontSize="12" Opacity="0.6" TextWrapping="Wrap"
+                                           Text="存到下面那个目录，文件名 截图_年月日_时分秒.png（撞名自动加序号）" />
+                            </StackPanel>
+                            <ToggleSwitch x:Name="ShotAutoSaveSwitch" Grid.Column="1" OnContent="开" OffContent="关" MinWidth="0"
+                                          IsCheckedChanged="ShotAutoSave_Toggled" />
+                        </Grid>
+
+                        <Border Classes="hr" />
+
+                        <StackPanel Spacing="8" Margin="20,8,12,8">
+                            <TextBlock Text="截图保存位置" />
+                            <TextBlock x:Name="ShotDirText" FontSize="12" Opacity="0.7" TextWrapping="Wrap" />
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <Button Content="更改目录…" Click="ShotDir_Change_Click" />
+                                <Button Content="打开目录" Click="ShotDir_Open_Click" />
+                                <Button Content="恢复默认（桌面）" Click="ShotDir_Reset_Click" />
+                            </StackPanel>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- ===== 软件内容 ===== -->
+                <TextBlock Text="软件内容" FontSize="20" FontWeight="Bold" Margin="0,12,0,0" />
+                <Border CornerRadius="8"
+                        Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                        BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="1">
+                    <StackPanel Spacing="0" Margin="20,8,12,8">
+                        <TextBlock x:Name="ContentSummary" FontWeight="Bold" TextWrapping="Wrap" />
+                        <TextBlock x:Name="ContentSource" FontSize="12" Opacity="0.7" TextWrapping="Wrap"
+                                   Margin="0,4,0,4" />
+                        <TextBlock x:Name="ContentIssues" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,4"
+                                   IsVisible="False"
+                                   Foreground="{DynamicResource SystemFillColorCautionBrush}" />
+                        <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,6,0,2">
+                            <Button Content="重新读取内容" Click="ReloadContent_Click" />
+                            <Button Content="同步内容包" Click="SyncContent_Click" />
+                            <Button Content="打开内容目录" Click="OpenContentDir_Click" />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- ===== 更新 ===== -->
+                <TextBlock Text="更新" FontSize="20" FontWeight="Bold" Margin="0,12,0,0" />
+                <Border CornerRadius="8"
+                        Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                        BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="1">
+                    <StackPanel Spacing="0">
+                        <TextBlock x:Name="UpdateCurrent" FontWeight="Bold" TextWrapping="Wrap" Padding="20,8,12,8" />
+
+                        <Border Classes="hr" />
+
+                        <Grid ColumnSpacing="16" Margin="20,8,12,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Spacing="2" VerticalAlignment="Center">
+                                <TextBlock Text="更新通道" />
+                                <TextBlock Text="稳定通道更稳，Insider 通道能更早拿到新功能" FontSize="12" Opacity="0.6"
+                                           TextWrapping="Wrap" />
+                            </StackPanel>
+                            <ComboBox x:Name="ChannelCombo" Grid.Column="1" MinWidth="170"
+                                      SelectionChanged="ChannelChoice_SelectionChanged">
+                                <ComboBoxItem Content="稳定通道" Tag="stable" />
+                                <ComboBoxItem Content="Insider 通道" Tag="insider" />
+                            </ComboBox>
+                        </Grid>
+
+                        <Border Classes="hr" />
+
+                        <Grid ColumnSpacing="16" Margin="20,8,12,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="启动时自动检查更新" VerticalAlignment="Center" />
+                            <ToggleSwitch x:Name="AutoCheckSwitch" Grid.Column="1" OnContent="开" OffContent="关" MinWidth="0"
+                                          IsCheckedChanged="AutoCheckSwitch_Toggled" />
+                        </Grid>
+
+                        <Border Classes="hr" />
+
+                        <StackPanel Spacing="8" Margin="20,8,12,8">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <Button x:Name="CheckButton" Content="检查更新" Click="CheckUpdate_Click"
+                                        Classes="accent" />
+                            </StackPanel>
+                            <TextBlock Text="发现新版本会先问你要不要下载，不会自动更新；启动时如果是最小化启动，会用系统通知提醒你。"
+                                       FontSize="12" Opacity="0.6" TextWrapping="Wrap" />
+                            <TextBlock Text="跨平台版不静默安装（macOS 要过 Gatekeeper、Linux 各家包格式不同）：点了会用系统默认浏览器打开下载页，你自己下、自己装。"
+                                       FontSize="12" Opacity="0.6" TextWrapping="Wrap" />
+                            <TextBlock x:Name="UpdateStatus" FontSize="12" Opacity="0.75" TextWrapping="Wrap" />
+                            <TextBlock x:Name="UpdateNotes" FontSize="12" Opacity="0.6" TextWrapping="Wrap"
+                                       MaxLines="8" IsVisible="False" MaxHeight="140" />
+                        </StackPanel>
+
+                        <Border Classes="hr" />
+
+                        <!-- 版本记录（本机） + 仓库里可回滚的版本 -->
+                        <Expander x:Name="HistoryExpander" Header="版本记录（这台电脑装过的版本）"
+                                  HorizontalAlignment="Stretch"
+                                  HorizontalContentAlignment="Stretch" Expanding="History_Expanding">
+                            <StackPanel Spacing="10">
+                                <TextBlock FontSize="12" Opacity="0.65" TextWrapping="Wrap"
+                                           Text="下面按时间倒序列出这台电脑上运行过的版本（应用每次启动自动记录，时间是本机时间）。" />
+                                <StackPanel x:Name="LocalHistoryList" Spacing="6" />
+
+                                <TextBlock FontSize="12" Opacity="0.65" TextWrapping="Wrap" Margin="0,8,0,0"
+                                           Text="想装回以前某个版本？下面是更新仓库里发过的版本（正式版 + Insider 版）。" />
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <Button x:Name="LoadHistoryButton" Content="从仓库加载可回滚的版本"
+                                            Click="LoadHistory_Click" />
+                                    <ui:FAProgressRing x:Name="HistoryRing" Width="20" Height="20"
+                                                       IsActive="False" IsVisible="False" />
+                                </StackPanel>
+                                <StackPanel x:Name="HistoryList" Spacing="6" />
+                            </StackPanel>
+                        </Expander>
+                    </StackPanel>
+                </Border>
+
+            </StackPanel>
+        </Grid>
+    </ScrollViewer>
+</UserControl>

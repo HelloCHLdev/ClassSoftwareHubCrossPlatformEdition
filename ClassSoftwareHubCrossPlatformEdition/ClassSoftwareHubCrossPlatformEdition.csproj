@@ -1,0 +1,87 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>net10.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ApplicationManifest>app.manifest</ApplicationManifest>
+        <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Avalonia" Version="12.0.2"/>
+        <PackageReference Include="Avalonia.Desktop" Version="12.0.2"/>
+        <PackageReference Include="Avalonia.Themes.Fluent" Version="12.0.2"/>
+        <PackageReference Include="Avalonia.Fonts.Inter" Version="12.0.2"/>
+        <PackageReference Include="AvaloniaUI.DiagnosticsSupport" Version="2.2.1">
+            <IncludeAssets Condition="'$(Configuration)' != 'Debug'">None</IncludeAssets>
+            <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
+        </PackageReference>
+        <PackageReference Include="Beutl.FluentIcons.FluentAvalonia" Version="1.1.324" />
+        <PackageReference Include="brokiem.FluentAvaloniaUI" Version="2.0.9" />
+        <PackageReference Include="Darp.Utils.Dialog.FluentAvalonia" Version="1.20.0" />
+        <PackageReference Include="FluentAvalonia.BreadcrumbBar" Version="2.0.2" />
+        <PackageReference Include="FluentAvalonia.FluentIcons" Version="1.1.201.1-preview7" />
+        <PackageReference Include="FluentAvalonia.FuncUI.Bindings" Version="0.0.4" />
+        <PackageReference Include="FluentAvalonia.ProgressRing" Version="1.69.2" />
+        <PackageReference Include="FluentAvalonia.UI.Navigation" Version="11.0.6.3" />
+        <PackageReference Include="FluentAvalonia.UI.Windowing" Version="2.0.0-preview5" />
+        <PackageReference Include="FluentAvaloniaUI" Version="3.0.2" />
+        <PackageReference Include="FluentAvaloniaUI.NoAnim" Version="2.4.0-build3" />
+        <PackageReference Include="FluentIcons.Avalonia.Fluent" Version="2.1.343-ci" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <!-- 图标 / banner：内嵌成资源，单文件发布下 EmbeddedAssets.ExtractToCache 也能取到 -->
+        <EmbeddedResource Include="Assets\AppIcon-512.png" />
+        <EmbeddedResource Include="Assets\dv1.0.png" />
+        <EmbeddedResource Include="Assets\AppIcon.ico" />
+        <EmbeddedResource Include="Assets\ToolIcon.ico" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <!--
+          中文字体：HarmonyOS Sans 全字重（Thin/Light/Regular/Medium/Bold/Black）。
+          必须用 AvaloniaResource 而不是 EmbeddedResource —— 字体是走 avares:// 资源流读的，
+          普通的程序集资源在单文件发布 / 单文件裁剪下取不到。
+          App.axaml 里通过 <FontManagerOptions> 把默认字体族指到这个目录。
+        -->
+        <AvaloniaResource Include="Assets\fonts\HarmonyOS_Sans_*.ttf" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="Pages\DetailPage.axaml.cs">
+        <DependentUpon>DetailPage.axaml</DependentUpon>
+      </Compile>
+      <Compile Update="Pages\ShellPage.axaml.cs">
+        <DependentUpon>ShellPage.axaml</DependentUpon>
+      </Compile>
+      <Compile Update="Pages\SidebarLayoutPage.axaml.cs">
+        <DependentUpon>SidebarLayoutPage.axaml</DependentUpon>
+      </Compile>
+      <Compile Update="Pages\SubmitPage.axaml.cs">
+        <DependentUpon>SubmitPage.axaml</DependentUpon>
+      </Compile>
+      <Compile Update="Pages\SoftwarePage.axaml.cs">
+        <DependentUpon>SoftwarePage.axaml</DependentUpon>
+      </Compile>
+      <Compile Update="Pages\ToolsPage.axaml.cs">
+        <DependentUpon>ToolsPage.axaml</DependentUpon>
+      </Compile>
+      <Compile Update="Pages\WelcomePage.axaml.cs">
+        <DependentUpon>WelcomePage.axaml</DependentUpon>
+      </Compile>
+      <Compile Update="Pages\SettingsPage.axaml.cs">
+        <DependentUpon>SettingsPage.axaml</DependentUpon>
+      </Compile>
+    </ItemGroup>
+
+    <ItemGroup>
+      <AvaloniaXaml Update="Pages\SubmitPage.axaml">
+        <DependentUpon>SubmitPage.axaml</DependentUpon>
+      </AvaloniaXaml>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Assets\fonts\" />
+    </ItemGroup>
+</Project>

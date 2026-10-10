@@ -1,0 +1,175 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="800"
+             xmlns:ui="using:FluentAvalonia.UI.Controls"
+             xmlns:data="using:ClassSoftwareHubCrossPlatformEdition.Data"
+             x:Class="ClassSoftwareHubCrossPlatformEdition.Pages.SoftwarePage">
+
+    <!--
+      和首页 / 设置页同一套版式：三列 Grid 把内容钉在中间 960 宽（导航展开收起都不动）。
+      ⚠️ 别用 Stretch + MaxWidth：一旦触发上限，中列会被甩到一边。
+    -->
+    <Grid Margin="24,36,24,44">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*" />
+            <ColumnDefinition Width="998*" MaxWidth="960" />
+            <ColumnDefinition Width="1*" />
+        </Grid.ColumnDefinitions>
+
+        <Grid Grid.Column="1" RowSpacing="14">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <TextBlock x:Name="TitleText" Text="软件下载" FontSize="30" FontWeight="Bold" />
+
+            <StackPanel Grid.Row="1" Spacing="10">
+                <Grid ColumnSpacing="16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBox x:Name="SearchBox" MaxWidth="460" HorizontalAlignment="Left"
+                             PlaceholderText="搜索软件（名称 / 简介 / id）"
+                             TextChanged="SearchBox_TextChanged" />
+                    <!-- 视图切换：磁贴（3 列，带简介）/ 网格（5 列，紧凑） -->
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="14"
+                                VerticalAlignment="Center">
+                        <RadioButton x:Name="ViewTile" Content="磁贴视图" GroupName="cardview"
+                                     IsChecked="True" IsCheckedChanged="ViewChoice_Changed" />
+                        <RadioButton x:Name="ViewGrid" Content="网格视图" GroupName="cardview"
+                                     IsCheckedChanged="ViewChoice_Changed" />
+                    </StackPanel>
+                </Grid>
+                <ScrollViewer HorizontalScrollBarVisibility="Auto"
+                              VerticalScrollBarVisibility="Disabled">
+                    <StackPanel x:Name="Chips" Orientation="Horizontal" Spacing="8" />
+                </ScrollViewer>
+            </StackPanel>
+
+            <Grid Grid.Row="2">
+                <!-- ===== 磁贴视图（3 列 = 302 + 16 间距，正好 960；带简介） ===== -->
+                <ItemsControl x:Name="TileGrid" Classes="cshcard" Tapped="AppGrid_Tapped">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="data:SoftwareApp">
+                            <Border Width="302" Height="120" CornerRadius="8" Padding="16,14" Margin="0,0,16,14"
+                                    Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                                    BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                                    BorderThickness="1"
+                                    Tag="{Binding Id}"
+                                    PointerEntered="Card_PointerEntered" PointerExited="Card_PointerExited">
+                                <Grid RowSpacing="8" ColumnSpacing="12">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="*" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <Border Width="44" Height="44" CornerRadius="9" VerticalAlignment="Top"
+                                            HorizontalAlignment="Left">
+                                        <Border.Background>
+                                            <ImageBrush Source="{Binding IconImage}" Stretch="UniformToFill" />
+                                        </Border.Background>
+                                        <Panel>
+                                            <ui:FASymbolIcon Symbol="Shop" FontSize="20" Opacity="0.35"
+                                                             HorizontalAlignment="Center"
+                                                             VerticalAlignment="Center"
+                                                             IsVisible="{Binding IconPlaceholder}" />
+                                        </Panel>
+                                    </Border>
+                                    <StackPanel Grid.Column="1" Spacing="2" VerticalAlignment="Top">
+                                        <TextBlock Text="{Binding Name}" FontSize="15" FontWeight="Bold"
+                                                   MaxLines="1" TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Text="{Binding Tagline}" FontSize="12" Opacity="0.75"
+                                                   MaxLines="2" TextWrapping="Wrap"
+                                                   TextTrimming="CharacterEllipsis" />
+                                    </StackPanel>
+                                    <TextBlock Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding MetaText}"
+                                               FontSize="11.5" Opacity="0.7" MaxLines="1"
+                                               TextTrimming="CharacterEllipsis" VerticalAlignment="Bottom" />
+                                    <ui:FASymbolIcon Grid.Row="1" Grid.Column="2" Symbol="ChevronRight" FontSize="13"
+                                                     Opacity="0.45" VerticalAlignment="Bottom" />
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <!-- ===== 网格视图（5 列 = 174 + 16 间距，正好 960；紧凑） ===== -->
+                <ItemsControl x:Name="CompactGrid" Classes="cshcard" IsVisible="False"
+                              Tapped="AppGrid_Tapped">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="data:SoftwareApp">
+                            <Border Width="174" Height="112" CornerRadius="8" Padding="12,10" Margin="0,0,16,14"
+                                    Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                                    BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                                    BorderThickness="1"
+                                    Tag="{Binding Id}"
+                                    PointerEntered="Card_PointerEntered" PointerExited="Card_PointerExited">
+                                <Grid RowSpacing="3">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+                                    <Border Width="30" Height="30" CornerRadius="6" HorizontalAlignment="Left"
+                                            VerticalAlignment="Top">
+                                        <Border.Background>
+                                            <ImageBrush Source="{Binding IconImage}" Stretch="UniformToFill" />
+                                        </Border.Background>
+                                        <Panel>
+                                            <ui:FASymbolIcon Symbol="Shop" FontSize="16" Opacity="0.35"
+                                                             HorizontalAlignment="Center"
+                                                             VerticalAlignment="Center"
+                                                             IsVisible="{Binding IconPlaceholder}" />
+                                        </Panel>
+                                    </Border>
+                                    <TextBlock Grid.Row="1" Text="{Binding Name}" FontSize="13.5" FontWeight="Bold"
+                                               MaxLines="1" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Grid.Row="2" Text="{Binding Tagline}" FontSize="11.5" Opacity="0.75"
+                                               MaxLines="1" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Grid.Row="3" Text="{Binding CompactMeta}" FontSize="11" Opacity="0.7"
+                                               MaxLines="1" TextTrimming="CharacterEllipsis" />
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <!-- 空状态：把「为什么没有」和「怎么办」说清楚（内容包没同步 / 搜索没命中） -->
+                <StackPanel x:Name="EmptyPanel" IsVisible="False" Spacing="10" MaxWidth="520"
+                            HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <ui:FASymbolIcon Symbol="Help" FontSize="30" Opacity="0.45"
+                                     HorizontalAlignment="Center" />
+                    <TextBlock x:Name="EmptyTitle" Text="软件清单还是空的" FontSize="17" FontWeight="Bold"
+                               HorizontalAlignment="Center" />
+                    <TextBlock x:Name="EmptyText" FontSize="12.5" Opacity="0.75" TextWrapping="Wrap"
+                               TextAlignment="Center"
+                               Text="清单来自「内容包」：安装包里自带一份，联网后会自动从站点更新。" />
+                    <TextBlock x:Name="EmptyDetail" FontSize="11.5" Opacity="0.55" TextWrapping="Wrap"
+                               TextAlignment="Center" />
+                    <Button x:Name="EmptyRetry" Content="重新同步内容包" Classes="accent"
+                            HorizontalAlignment="Center" Click="EmptyRetry_Click" />
+                </StackPanel>
+            </Grid>
+        </Grid>
+    </Grid>
+</UserControl>
