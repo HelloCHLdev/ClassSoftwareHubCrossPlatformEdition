@@ -21,6 +21,37 @@ public sealed class DownloadItem
     public string Url { get; set; } = "";
     public string Hash { get; set; } = "";
 
+    /// <summary>数据里显式声明的落地方式（app JSON 的 downloads[].kind，可省）。</summary>
+    public string DeclaredKind { get; set; } = "";
+
+    /// <summary>这条链接的落地方式（判定见 <see cref="DownloadLinkKind"/>，与站点同源）。</summary>
+    public DownloadKind Kind => DownloadLinkKind.Of(Url, DeclaredKind);
+
+    /// <summary>
+    /// 主按钮文案：能直接下载的才写「下载」，只能跳转的把去处写清楚。
+    /// 与站点 文字设置.ts 的 detail.download / detail.open-page / detail.open-netdisk 一一对应。
+    /// </summary>
+    public string ActionText => Kind switch
+    {
+        DownloadKind.Netdisk => "前往网盘",
+        DownloadKind.Page => "前往官网",
+        _ => "下载",
+    };
+
+    /// <summary>
+    /// 跳转项的一句说明（对应站点 detail.hint-page / detail.hint-netdisk）；
+    /// 能直接下载的返回空串，界面上整行收起，不占位。
+    /// </summary>
+    public string KindHint => Kind switch
+    {
+        DownloadKind.Netdisk => "该链接为第三方网盘分享页，将跳转至网盘获取安装包",
+        DownloadKind.Page => "该软件仅提供官方下载页，将跳转至官网获取安装包",
+        _ => "",
+    };
+
+    /// <summary>WinUI 那边是 <c>Visibility</c>，Avalonia 侧统一用 <c>bool</c> 绑 <c>IsVisible</c>。</summary>
+    public bool KindHintVisibility => KindHint.Length > 0;
+
     /// <summary>平台旁边的小字（备注 / 体积），都没填就返回空串。</summary>
     public string Subtitle
     {
@@ -59,8 +90,9 @@ public sealed class DownloadItem
     /// <summary>WinUI 那边是 <c>Visibility</c>，Avalonia 侧统一用 <c>bool</c> 绑 <c>IsVisible</c>。</summary>
     public bool HashVisibility => HasHash;
 
-    /// <summary>GitHub 链接才给「加速下载」入口。</summary>
-    public bool MirrorVisibility => GithubMirror.IsMirrorableUrl(Url);
+    /// <summary>GitHub 直链才给「加速下载」入口（跳转类不给 —— 加速一个网页没有意义）。</summary>
+    public bool MirrorVisibility =>
+        Kind == DownloadKind.File && GithubMirror.IsMirrorableUrl(Url);
 }
 
 /// <summary>一个软件（字段与站点 data/index.ts 的 PICK 白名单一致）。</summary>

@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ClassSoftwareHubCrossPlatformEdition")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d0865f282f27aa2b8f820d2ef8da6b94ce5cfdea")]
 [assembly: System.Reflection.AssemblyProductAttribute("ClassSoftwareHubCrossPlatformEdition")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ClassSoftwareHubCrossPlatformEdition")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

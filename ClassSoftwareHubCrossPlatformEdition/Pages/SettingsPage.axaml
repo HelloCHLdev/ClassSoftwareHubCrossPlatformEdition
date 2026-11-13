@@ -16,18 +16,6 @@
             <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
         </Style>
 
-        <Style Selector="Border.qllink.accent">
-            <Setter Property="Background" Value="{DynamicResource AccentFillColorDefaultBrush}" />
-        </Style>
-
-        <Style Selector="Border.qllink.accent TextBlock">
-            <Setter Property="Foreground" Value="{DynamicResource TextOnAccentFillColorPrimaryBrush}" />
-        </Style>
-
-        <Style Selector="Border.qllink.accent ui|FASymbolIcon">
-            <Setter Property="Foreground" Value="{DynamicResource TextOnAccentFillColorPrimaryBrush}" />
-        </Style>
-
         <!-- 分隔线：卡片里一排排设置项之间的那道 1px -->
         <Style Selector="Border.hr">
             <Setter Property="Height" Value="1" />
@@ -36,10 +24,9 @@
     </UserControl.Styles>
 
     <UserControl.Resources>
-        <!-- 快捷入口两套配色（同首页）：Avalonia 12 没有 DataTemplateSelector，用单模板 + Classes.accent 切 -->
-
+        <!-- 快捷入口（同首页） -->
         <DataTemplate x:Key="QuickLinkTemplate" x:DataType="core:QuickLink">
-            <Border Classes="qllink" Classes.accent="{Binding Accent}"
+            <Border Classes="qllink"
                     Width="192" Height="88" CornerRadius="8" Padding="12,10"
                     Tag="{Binding Url}">
                 <StackPanel Spacing="7" HorizontalAlignment="Center" VerticalAlignment="Center">

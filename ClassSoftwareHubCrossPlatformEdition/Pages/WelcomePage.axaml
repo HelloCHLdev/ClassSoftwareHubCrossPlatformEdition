@@ -16,24 +16,12 @@
         <Style Selector="Border.qllink TextBlock">
             <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
         </Style>
-
-        <Style Selector="Border.qllink.accent">
-            <Setter Property="Background" Value="{DynamicResource AccentFillColorDefaultBrush}" />
-        </Style>
-
-        <Style Selector="Border.qllink.accent TextBlock">
-            <Setter Property="Foreground" Value="{DynamicResource TextOnAccentFillColorPrimaryBrush}" />
-        </Style>
-
-        <Style Selector="Border.qllink.accent ui|FASymbolIcon">
-            <Setter Property="Foreground" Value="{DynamicResource TextOnAccentFillColorPrimaryBrush}" />
-        </Style>
     </UserControl.Styles>
 
     <UserControl.Resources>
 
         <DataTemplate x:Key="QuickLinkTemplate" x:DataType="core:QuickLink">
-            <Border Classes="qllink" Classes.accent="{Binding Accent}"
+            <Border Classes="qllink"
                     Width="192" Height="88" CornerRadius="8" Padding="12,10"
                     Tag="{Binding Url}">
                 <StackPanel Spacing="7" HorizontalAlignment="Center" VerticalAlignment="Center">

@@ -164,6 +164,36 @@ public static class SystemInfo
         return null;
     }
 
+    /// <summary>
+    /// 一行「显示器 / 缩放」摘要（2026-10-11 加，启动日志横幅用，见 <c>Services.LogHome</c>）。
+    ///
+    /// ⚠️ 为什么要它：界面"错位 / 被截断 / 缩放发虚"这类问题**十有八九跟 DPI 和显示器数有关**，
+    ///    而这两个数用户从来不主动说 —— 每次启动自己记一行，出问题时就不用再问一遍。
+    /// 跨平台实现：优先读 Avalonia 的 <c>Screens</c>（台数 / 像素尺寸 / 缩放），
+    /// 读不到（还没建窗口、headless）就退回主窗口 ClientSize；都拿不到给 <c>—</c>。
+    /// </summary>
+    public static string DisplaySummary()
+    {
+        try
+        {
+            if (App.TopLevel?.Screens is { } screens && screens.All.Count > 0)
+            {
+                var primary = screens.Primary ?? screens.All[0];
+                var scale = (int)Math.Round(primary.Scaling * 100);
+                return $"{screens.All.Count} 台／{primary.Bounds.Width}x{primary.Bounds.Height}／缩放 {scale}%";
+            }
+        }
+        catch { /* 还没建窗口 / headless 下 Screens 会抛 */ }
+
+        try
+        {
+            if (MonitorSize() is { } size) return $"1 台／{size.Width}x{size.Height}／缩放 —";
+        }
+        catch { /* 同上 */ }
+
+        return "—";
+    }
+
     // ══════════════════════════ 系统信息 ══════════════════════════
 
     /// <summary>操作系统：系统名 + 架构。</summary>

@@ -29,9 +29,6 @@ public sealed class ContentStore
     public List<DownloadCategory> Categories { get; } = new();
     public List<DataIssue> Issues { get; } = new();
 
-    /// <summary>系统镜像下载页的内容（text/mirror-sites.json）。</summary>
-    public MirrorInfo Mirror { get; } = new();
-
     /// <summary>站点文字（text/ui.json 里桌面版需要的标题 / 版本号）。</summary>
     public UiText Ui { get; } = new();
 
@@ -65,7 +62,6 @@ public sealed class ContentStore
         Apps.Clear();
         Categories.Clear();
         Issues.Clear();
-        Mirror.Sites.Clear();
 
         var root = ResolveContentRoot(out var kind);
         SourceKind = kind;
@@ -80,7 +76,6 @@ public sealed class ContentStore
         LoadCategories(Path.Combine(root, "categories.json"));
         ApplyCategoryDisplay();
         LoadManifestVersion(Path.Combine(root, "manifest.json"));
-        LoadMirror(Path.Combine(root, "text", "mirror-sites.json"));
         LoadUi(Path.Combine(root, "text", "ui.json"));
     }
 
@@ -107,51 +102,6 @@ public sealed class ContentStore
         }
         catch { /* 文字读不到不影响使用 */ }
     }
-
-    /// <summary>系统镜像下载清单（读不到就留空）。</summary>
-    private void LoadMirror(string file)
-    {
-        try
-        {
-            if (!File.Exists(file)) return;
-            using var doc = JsonDocument.Parse(File.ReadAllText(file));
-            var root = doc.RootElement;
-            if (root.ValueKind != JsonValueKind.Object) return;
-
-            Mirror.Title = Or(ReadString(root, "title"), Mirror.Title);
-            Mirror.Subtitle = ReadString(root, "subtitle");
-            Mirror.Disclaimer = ReadString(root, "disclaimer");
-            Mirror.Note = ReadString(root, "note");
-
-            if (root.TryGetProperty("sites", out var sites) && sites.ValueKind == JsonValueKind.Array)
-            {
-                foreach (var s in sites.EnumerateArray())
-                {
-                    if (s.ValueKind != JsonValueKind.Object) continue;
-                    var url = ReadString(s, "url");
-                    if (url.Length == 0) continue;
-                    Mirror.Sites.Add(new MirrorSite
-                    {
-                        Name = ReadString(s, "name"),
-                        Desc = ReadString(s, "desc"),
-                        Url = url,
-                        Color = ReadString(s, "color"),
-                        Icon = ReadString(s, "icon"),
-                    });
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            Issues.Add(new DataIssue
-            {
-                File = "text/mirror-sites.json",
-                Message = "镜像清单读取失败：" + FriendlyJsonHint(ex.Message),
-            });
-        }
-    }
-
-    private static string Or(string a, string b) => a.Length > 0 ? a : b;
 
     /// <summary>
     /// 按优先级找一个可用的内容目录。

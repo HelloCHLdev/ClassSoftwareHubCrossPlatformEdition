@@ -14,6 +14,13 @@ public static class SidebarModuleKinds
     public const string Page = "page";
     /// <summary>讲台动作：按一下就干活（不外跳、不抢焦点、不开新窗口）。</summary>
     public const string Action = "action";
+    /// <summary>
+    /// 挨着边条弹出的单滑块面板（音量 / 屏幕亮度）：不外跳，在边条**挨着的那一侧**弹一栏浮窗，
+    /// 边条本身不收起。
+    /// ⚠️ 跨平台版目前**没有**任何模块用这个类型（音量 / 亮度都是 Windows 专有，见
+    ///    <see cref="SidebarModules.All"/>）；这里保留定义只为跟站点数据模型 / Windows 版对齐。
+    /// </summary>
+    public const string Panel = "panel";
 }
 
 /// <summary>
@@ -46,9 +53,10 @@ public sealed class SidebarModule
     /// <summary>给用户看的一句话说明。</summary>
     public string Hint => Note ?? Kind switch
     {
-        SidebarModuleKinds.Page => "打开主窗口里的这一页",
-        SidebarModuleKinds.Action => "按一下就干活，不跳窗口、不抢焦点",
-        _ => "弹一个小浮窗，不占主界面"
+        SidebarModuleKinds.Page => "打开主窗口中的该页面",
+        SidebarModuleKinds.Action => "单击即执行，不切换窗口、不抢占焦点",
+        SidebarModuleKinds.Panel => "在侧边栏旁显示面板，不切换窗口、不占用主界面",
+        _ => "显示浮窗，不占用主界面"
     };
 }
 
@@ -63,17 +71,14 @@ public static class SidebarModules
         new() { Id = "clock", Name = "全屏时钟", ShortName = "时钟", Symbol = FASymbol.FullScreen, Kind = SidebarModuleKinds.Palette },
         new() { Id = "image-color", Name = "图片取色", ShortName = "取色", Symbol = FASymbol.ColorFill, Kind = SidebarModuleKinds.Page },
         new() { Id = "encoding", Name = "编码 / 哈希转换", ShortName = "编码", Symbol = FASymbol.Code, Kind = SidebarModuleKinds.Page },
-        new() { Id = "mirror-download", Name = "系统镜像下载", ShortName = "镜像", Symbol = FASymbol.Download, Kind = SidebarModuleKinds.Page },
 
-        // ── 讲台动作：按一下就干活，不外跳、不抢焦点 ──
-        new() { Id = "mag", Name = "放大镜", ShortName = "放大", Symbol = FASymbol.Zoom, Kind = SidebarModuleKinds.Action, Note = "调系统放大镜（跟着鼠标走的那块）；点一下开、再点一下关" },
-        new() { Id = "screenshot", Name = "截屏贴图", ShortName = "截屏", Symbol = FASymbol.FullScreen, Kind = SidebarModuleKinds.Action, Note = "拖一块 → 弹出**编辑窗**：画笔/荧光笔/箭头/矩形/椭圆/文字/马赛克 + 撤销重做，然后**复制到剪贴板 / 保存到本地 / 钉图**（钉图 1:1、拖边框缩放、双击或右键关掉）" },
-        new() { Id = "taskview", Name = "任务视图", ShortName = "任务", Symbol = FASymbol.List, Kind = SidebarModuleKinds.Action, Note = "等于 Win+Tab" },
-        new() { Id = "showdesktop", Name = "回到桌面", ShortName = "桌面", Symbol = FASymbol.ChevronDown, Kind = SidebarModuleKinds.Action, Note = "把窗口都收起来看桌面；再按一次还原（不关任何东西）" },
-        new() { Id = "closefg", Name = "关闭前台应用", ShortName = "关前台", Symbol = FASymbol.Dismiss, Kind = SidebarModuleKinds.Action, Note = "关掉你正在用的那个窗口（等于点 ×，会弹「是否保存」，不硬杀）" },
-        new() { Id = "closeall", Name = "关闭全部窗口", ShortName = "关全部", Symbol = FASymbol.Delete, Kind = SidebarModuleKinds.Action, Note = "把任务栏里开着的一堆一次关掉（含最小化的）。防误触：**第一下只点数，再按一下才真关**；全是优雅关闭，不硬杀" },
-        // 「最小化全部窗口」已删（2026-09-25）：「回到桌面」在 Windows 上做的事跟它一模一样（都是把窗口全收起来、再按一次还原），
-        // 两个按钮一个效果，留着只会让人问「有区别吗」。要恢复就把这行抄回去。
+        // ⚠️ 跨平台版只保留上面这 6 个纯跨平台模块。Windows 专有的一律**不保留、也不新增**：
+        //    · mirror-download（2026-10-09「系统镜像下载」整体下线）
+        //    · volume / brightness（音量、屏幕亮度 —— 用到 Windows 系统 API）
+        //    · mag / screenshot / taskview / showdesktop / closefg / closeall（讲台动作）
+        //    · taskmgr / security / clipboard / cancelshutdown / killseewo / keyboard（系统操作）
+        //    老存档里若还存着这些 id，<see cref="SidebarModules.Find"/> 会返回 null，
+        //    「侧边布局」页与存档迁移都会把它跳过（不会崩，见 SettingsStore.SidebarModulesRevision）。
     };
 
     /// <summary>恢复默认时用的清单（就是老版本侧边栏的那四个）。</summary>

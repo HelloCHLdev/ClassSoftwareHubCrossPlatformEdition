@@ -15,9 +15,6 @@ public sealed class QuickLink
     public FASymbol Symbol { get; set; } = FASymbol.Star;
 
     public string Url { get; set; } = "";
-
-    /// <summary>要突出的那颗（「赞助作者」）：模板换成"主题色底 + 反白字"那套。</summary>
-    public bool Accent { get; set; }
 }
 
 /// <summary>快捷入口清单（两处页面共用，改一处两边都变）。</summary>
@@ -38,9 +35,12 @@ public static class QuickLinks
                 Name = "作者主页", Symbol = FASymbol.Contact,
                 Url = ui.T("about.author-home-url", "https://space.bilibili.com/1274920807"),
             },
+            // ⚠️ 这颗原来带 Accent = true（走"主题色底 + 反白字"那套模板单独突出），
+            //    2026-10-12 Nick 嫌那个底色越看越丑 ⇒ 去掉。Accent 属性与 accent 模板一并删除，
+            //    首页与设置页的五颗现在共用同一套模板。
             new()
             {
-                Name = "赞助作者", Symbol = FASymbol.Star, Accent = true,
+                Name = "赞助作者", Symbol = FASymbol.Star,
                 Url = ui.T("about.reward-url", "https://ifdian.net/a/TinyNickCSHub"),
             },
             new()

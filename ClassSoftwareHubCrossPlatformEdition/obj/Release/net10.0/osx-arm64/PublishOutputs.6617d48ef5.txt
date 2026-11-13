@@ -1,0 +1,1 @@
+/Users/lichenghao/RiderProjects/ClassSoftwareHubCrossPlatformEdition/.ci-verify/publish-osx-arm64/ClassSoftwareHubCrossPlatformEdition

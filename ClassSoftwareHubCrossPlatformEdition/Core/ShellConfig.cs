@@ -43,9 +43,22 @@ public static class ShellConfig
         ShellVersion.Contains("insider", StringComparison.OrdinalIgnoreCase) ? "insider" : "stable";
 
     /// <summary>与站点对齐的适配版本号（内容包里读不到 app.version 时的兜底）。</summary>
-    public const string SiteVersionTarget = "v2.3.3";
+    public const string SiteVersionTarget = "v2.3.4";
+
+    /// <summary>
+    /// 设置页「站点版本」那一行显示的全文。
+    /// ⛔ 站点的真实版本只有客户端自己最清楚（发版时人工对齐），以编译进程序的常量为准。
+    ///   跨平台版与桌面版共用同一份站点，站点版本号保持一致。
+    /// </summary>
+    public const string SiteVersionDisplay = "v2.3.4 - Tangram (20260927PR01)";
 
     public const string NetworkErrorMessage = "网络出现错误，请稍后重试";
+
+    /// <summary>
+    /// 「把主窗口叫出来」的命名事件名（第二实例敲它，让第一个实例亮出主窗口，然后自己退）。
+    /// 各平台实现不同（见 <c>SystemIntegration.TryClaimSingleInstance</c>），名字保持统一。
+    /// </summary>
+    public const string ActivateEventName = "ClassSoftwareHub.Desktop.ActivateMainWindow";
 
     /// <summary>标题栏高度。</summary>
     public const int TitleBarHeight = 48;

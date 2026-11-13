@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "0Okb9brORzg=",
+  "dgSpecHash": "oGUEkqbidC4=",
   "success": true,
   "projectFilePath": "/Users/lichenghao/RiderProjects/ClassSoftwareHubCrossPlatformEdition/ClassSoftwareHubCrossPlatformEdition/ClassSoftwareHubCrossPlatformEdition.csproj",
   "expectedPackageFiles": [
@@ -51,6 +51,7 @@
     "/Users/lichenghao/.nuget/packages/microsoft.extensions.dependencyinjection.abstractions/8.0.0/microsoft.extensions.dependencyinjection.abstractions.8.0.0.nupkg.sha512",
     "/Users/lichenghao/.nuget/packages/microsoft.extensions.logging.abstractions/8.0.0/microsoft.extensions.logging.abstractions.8.0.0.nupkg.sha512",
     "/Users/lichenghao/.nuget/packages/microsoft.io.recyclablememorystream/3.0.1/microsoft.io.recyclablememorystream.3.0.1.nupkg.sha512",
+    "/Users/lichenghao/.nuget/packages/microsoft.net.illink.tasks/10.0.7/microsoft.net.illink.tasks.10.0.7.nupkg.sha512",
     "/Users/lichenghao/.nuget/packages/skiasharp/3.119.4-preview.1.1/skiasharp.3.119.4-preview.1.1.nupkg.sha512",
     "/Users/lichenghao/.nuget/packages/skiasharp.nativeassets.linux/3.119.4-preview.1.1/skiasharp.nativeassets.linux.3.119.4-preview.1.1.nupkg.sha512",
     "/Users/lichenghao/.nuget/packages/skiasharp.nativeassets.macos/3.119.4-preview.1.1/skiasharp.nativeassets.macos.3.119.4-preview.1.1.nupkg.sha512",
@@ -58,17 +59,9 @@
     "/Users/lichenghao/.nuget/packages/skiasharp.nativeassets.win32/3.119.4-preview.1.1/skiasharp.nativeassets.win32.3.119.4-preview.1.1.nupkg.sha512",
     "/Users/lichenghao/.nuget/packages/system.reactive/6.1.0/system.reactive.6.1.0.nupkg.sha512",
     "/Users/lichenghao/.nuget/packages/system.reactive.linq/6.1.0/system.reactive.linq.6.1.0.nupkg.sha512",
-    "/Users/lichenghao/.nuget/packages/tmds.dbus.protocol/0.92.0/tmds.dbus.protocol.0.92.0.nupkg.sha512"
+    "/Users/lichenghao/.nuget/packages/tmds.dbus.protocol/0.92.0/tmds.dbus.protocol.0.92.0.nupkg.sha512",
+    "/Users/lichenghao/.nuget/packages/microsoft.netcore.app.runtime.osx-arm64/10.0.7/microsoft.netcore.app.runtime.osx-arm64.10.0.7.nupkg.sha512",
+    "/Users/lichenghao/.nuget/packages/microsoft.aspnetcore.app.runtime.osx-arm64/10.0.7/microsoft.aspnetcore.app.runtime.osx-arm64.10.0.7.nupkg.sha512"
   ],
-  "logs": [
-    {
-      "code": "NU1900",
-      "level": "Warning",
-      "message": "Error occurred while getting package vulnerability data: Unable to load the service index for source https://api.nuget.org/v3/index.json.",
-      "projectPath": "/Users/lichenghao/RiderProjects/ClassSoftwareHubCrossPlatformEdition/ClassSoftwareHubCrossPlatformEdition/ClassSoftwareHubCrossPlatformEdition.csproj",
-      "warningLevel": 1,
-      "filePath": "/Users/lichenghao/RiderProjects/ClassSoftwareHubCrossPlatformEdition/ClassSoftwareHubCrossPlatformEdition/ClassSoftwareHubCrossPlatformEdition.csproj",
-      "targetGraphs": []
-    }
-  ]
+  "logs": []
 }

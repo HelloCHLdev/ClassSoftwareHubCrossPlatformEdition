@@ -72,7 +72,6 @@ public sealed class TrayHost : IDisposable
 
             // TrayIcons 本身就是一个 AvaloniaList<TrayIcon>，作为附加属性挂到 Application 上
             TrayIcon.SetIcons(Application.Current!, new TrayIcons { _icon });
-            IsReady = true;
             return true;
         }
         catch (Exception ex)

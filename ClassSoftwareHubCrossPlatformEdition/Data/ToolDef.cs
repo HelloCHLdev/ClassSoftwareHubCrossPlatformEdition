@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Avalonia.Media;
 using FluentAvalonia.UI.Controls;
 
 namespace ClassSoftwareHubCrossPlatformEdition.Data;
@@ -29,64 +28,50 @@ public sealed class ToolDef
     public override string ToString() => Name;
 }
 
-/// <summary>一个系统镜像下载入口（对应内容包 text/mirror-sites.json）。</summary>
-public sealed class MirrorSite
+/// <summary>
+/// 内置工具清单 —— 工具索引页的卡片共用这一份。
+///
+/// 与 Windows 版 <c>Data/ToolDef.cs</c> 的 <c>ToolCatalog</c> 同源，但**只收跨平台版要展示的工具**：
+///   · ⚠️「系统镜像下载（mirror-download）」2026-10-09 整体下线，已删；
+///   · ⛔「自动关机（autoshutdown）」是 Windows 专有关机能力，跨平台版不收；
+///   · ⛔ 其余 Windows 专有工具（音量 / 亮度 / 放大镜 / 截屏 / 任务视图…）同样不收。
+///
+/// <see cref="ToolDef.Page"/> 一律留 null（工具子页面还没搬），点卡片走对话框兜底分支，
+/// 见 <c>Pages/ToolsPage</c>。
+/// </summary>
+public static class ToolCatalog
 {
-    public string Name { get; set; } = "";
-    public string Desc { get; set; } = "";
-    public string Url { get; set; } = "";
-    public string Color { get; set; } = "";
-    public string Icon { get; set; } = "";
-
-    /// <summary>显示域名（去掉 https:// 与路径）。</summary>
-    public string Host
+    public static readonly List<ToolDef> All = new()
     {
-        get
+        new ToolDef
         {
-            try { return new Uri(Url).Host; }
-            catch { return ""; }
-        }
-    }
-
-    /// <summary>没有图标时兜底：名字首字。</summary>
-    public string Badge => Name.Length > 0 ? Name.Substring(0, 1).ToUpperInvariant() : "?";
-
-    /// <summary>站点有没有自带图标（内容包里的 icon 字段）。</summary>
-    public bool IconVisibility => Icon.Length > 0;
-
-    public bool BadgeVisibility => Icon.Length == 0;
-
-    /// <summary>首字方块底色（站点色的淡染）；站点没写 color 就用主题蓝。</summary>
-    public IBrush BadgeBackground => Tint(0.12);
-
-    public IBrush BadgeBorder => Tint(0.40);
-
-    private IBrush Tint(double alpha)
-    {
-        var hex = Color.TrimStart('#');
-        if (hex.Length != 6) return Brushes.Transparent;
-
-        try
+            Id = "image-color", Name = "图片取色",
+            Desc = "丢一张图片进来，自动提取一组柔和的配色（种子色 + 7 档明暗变体），点色块即可复制。",
+            Symbol = FASymbol.ColorFill,
+        },
+        new ToolDef
         {
-            var r = Convert.ToByte(hex.Substring(0, 2), 16);
-            var g = Convert.ToByte(hex.Substring(2, 2), 16);
-            var b = Convert.ToByte(hex.Substring(4, 2), 16);
-            var a = (byte)(Math.Clamp(alpha, 0, 1) * 255);
-            return new SolidColorBrush(Avalonia.Media.Color.FromArgb(a, r, g, b));
-        }
-        catch
+            Id = "pick-number", Name = "随机抽号",
+            Desc = "输入号码范围（比如学号 1~50）就能抽号，支持一次抽多个、抽过不重复。",
+            Symbol = FASymbol.Shuffle,
+        },
+        new ToolDef
         {
-            return Brushes.Transparent;
-        }
-    }
-}
-
-/// <summary>系统镜像下载页的整页文字 + 站点清单。</summary>
-public sealed class MirrorInfo
-{
-    public string Title { get; set; } = "系统镜像下载";
-    public string Subtitle { get; set; } = "";
-    public string Disclaimer { get; set; } = "";
-    public string Note { get; set; } = "";
-    public List<MirrorSite> Sites { get; } = new();
+            Id = "timer", Name = "课堂计时器",
+            Desc = "倒计时 / 秒表，大字号方便投影，到点响铃。",
+            Symbol = FASymbol.Clock,
+        },
+        new ToolDef
+        {
+            Id = "clock", Name = "全屏时钟",
+            Desc = "把屏幕变成一面大钟：可放背景图、调蒙版，全屏显示看时间。",
+            Symbol = FASymbol.FullScreen,
+        },
+        new ToolDef
+        {
+            Id = "encoding", Name = "编码 / 哈希工具",
+            Desc = "Base64、URL 编解码，以及 MD5 / SHA-1 / SHA-256 / SHA-512 哈希。",
+            Symbol = FASymbol.Code,
+        },
+    };
 }
