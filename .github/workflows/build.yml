@@ -497,6 +497,24 @@ jobs:
           echo "──── release-notes.md ────"
           cat release-notes.md
 
+      - name: 规整资产文件名
+        run: |
+          set -euo pipefail
+          # GitHub 上传 Release 资产时会把文件名里的 '~' 换成 '.'（实测过）。
+          # Debian 的预发布版本号要用 ~ 才能保证 beta 排在正式版前面，但直接上传的话
+          # 资产名会被改掉，checksums.md5 里的名字就和资产对不上，md5sum -c 会失败。
+          # 所以上传前自己先换掉，GitHub 就不会再动它。
+          for f in dist/*; do
+            case "${f}" in
+              *'~'*)
+                newf="$(printf '%s' "${f}" | tr '~' '.')"
+                mv -- "${f}" "${newf}"
+                echo "改名：${f} -> ${newf}"
+                ;;
+            esac
+          done
+          ls -l dist/
+
       - name: 生成校验和
         run: |
           set -euo pipefail
