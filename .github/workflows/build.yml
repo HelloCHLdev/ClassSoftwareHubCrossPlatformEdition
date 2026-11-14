@@ -10,13 +10,14 @@
 #    linux-x64    → classsoftwarehub_<ver>_amd64.deb
 #
 #  这个文件既是「构建流水线」也是「发版流水线」：
-#  推送 v* tag 会在构建矩阵全部成功后自动发一个 GitHub Release，
+#  构建矩阵全部成功后自动发一个 GitHub Release，
 #  发布说明直接取仓库里的 CHANGELOG.md，不用再手写一遍。
 #
 #  触发方式：
-#    · push 到任意分支 / PR  → 只构建，上传产物（不发布）
-#    · push v* tag           → 构建完成后自动发 Release
-#    · 手动 dispatch         → 勾了「发布 Release」就顺便发一个
+#    · push 到任意分支       → 构建 + 发一个 v0.0.0-ci.<sha> 的预发布 Release
+#    · push v* tag           → 构建 + 发该 tag 的正式 Release
+#    · pull_request         → 只构建，不发（fork 不能往仓库塞 Release）
+#    · 手动 dispatch         → 同上，输入框里可以关掉发布
 #    · 被别的 workflow 调用  → 构建并把版本号输出给调用方
 # ─────────────────────────────────────────────────────────────
 name: Build
@@ -40,7 +41,7 @@ on:
         description: '构建完成后是否发布 Release'
         required: false
         type: boolean
-        default: false
+        default: true
   workflow_call:
     inputs:
       version:
@@ -52,7 +53,7 @@ on:
         description: '构建完成后是否发布 Release'
         required: false
         type: boolean
-        default: false
+        default: true
     outputs:
       version:
         description: '本次实际使用的版本号'
@@ -64,8 +65,9 @@ permissions:
 
 concurrency:
   group: build-${{ github.ref }}
-  # 分支上的重复推送可以取消；tag 发版绝不取消
-  cancel-in-progress: ${{ github.ref_type != 'tag' }}
+  # 每次推送都会发一个 Release，中途取消可能留下一个资产不全的 Release，
+  # 所以这里排队跑，不取消。
+  cancel-in-progress: false
 
 jobs:
   build:
@@ -400,20 +402,25 @@ jobs:
   # ────────────────────────────────────────────────────────────
   #  构建矩阵全部成功后，把产物汇总成 GitHub Release
   #
-  #  触发条件：
-  #    · 推 v* tag                    → 发正式 Release（tag 名即版本号）
-  #    · 手动 dispatch 且勾了发布选项 → 发 Release（tag = v<版本号>，指向本次提交）
-  #    · 普通 push / PR               → 不发（否则每次提交都刷一条 Release）
+  #  发布规则：
+  #    · push 任意分支          → 发一个 v0.0.0-ci.<sha> 的预发布 Release
+  #    · push v* tag            → 发该 tag 的正式 Release
+  #    · 手动 dispatch          → 同上（可在输入里关掉）
+  #    · pull_request          → 不发（fork 的 PR 不能往仓库里塞 Release）
   #
   #  发布说明取仓库里的 CHANGELOG.md；没有或为空时自动生成摘要兜底。
+  #
+  #  tag 用真实版本号而不是「latest」这种滚动 tag：应用内更新器
+  #  （Services/Updating/UpdateModels.cs 的 VersionCompare）会把 tag 当版本号比大小，
+  #  滚动 tag 会被判成比正式版还新，用户就会收到假更新。
   # ────────────────────────────────────────────────────────────
   release:
     name: 发布 Release
     needs: build
     if: >-
       success() &&
-      (github.ref_type == 'tag' ||
-       (github.event_name == 'workflow_dispatch' && inputs.publish == true))
+      github.event_name != 'pull_request' &&
+      (github.event_name != 'workflow_dispatch' || inputs.publish)
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     permissions:
