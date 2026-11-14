@@ -328,7 +328,8 @@ jobs:
                    "${ROOT}/usr/bin" \
                    "${ROOT}/usr/share/applications" \
                    "${ROOT}/usr/share/icons/hicolor/512x512/apps" \
-                   "${ROOT}/usr/share/doc/${PKG}"
+                   "${ROOT}/usr/share/doc/${PKG}" \
+                   "${DIST}"
 
           # 1) 主程序装到 /opt/<pkg>/，再软链到 /usr/bin
           install -m 0755 "publish/ClassSoftwareHubCrossPlatformEdition" "${ROOT}/opt/${PKG}/${NAME}"
