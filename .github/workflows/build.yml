@@ -287,8 +287,17 @@ jobs:
           PKG="classsoftwarehub"
           VER="${{ steps.ver.outputs.version }}"
           ARCH="${{ matrix.deb_arch }}"
-          # Debian 的版本号里不能直接带 '-'，预发布后缀按惯例换成 '~'
-          DEB_VER="${VER//-/~}"
+          # Debian 的版本号里不能直接带 '-'，预发布后缀按惯例换成 '~'。
+          # ⚠️ 千万不要用 ${VER//-/~}：bash 5.x（Ubuntu runner）会把替换串里的 ~ 当成
+          #    家目录展开成 /home/runner，版本号会变成 0.0.0/home/runnerci.xxxxx，
+          #    dpkg-deb 直接报 "invalid character in version number"。
+          #    bash 3.2（macOS）不展开，所以本地根本测不出来 —— 用 tr 最保险。
+          DEB_VER="$(printf '%s' "${VER}" | tr '-' '~')"
+          # Debian 版本号必须以数字开头
+          case "${DEB_VER}" in
+            [0-9]*) ;;
+            *) DEB_VER="0.0.0~${DEB_VER}" ;;
+          esac
           ROOT="deb-root"
           DIST="dist"
 
@@ -353,6 +362,8 @@ jobs:
           CONTROL
 
           # 6) 打包
+          echo "──── DEBIAN/control ────"
+          cat "${ROOT}/DEBIAN/control"
           dpkg-deb --build --root-owner-group "${ROOT}" "${DIST}/${PKG}_${DEB_VER}_${ARCH}.deb"
           dpkg-deb --info "${DIST}/${PKG}_${DEB_VER}_${ARCH}.deb"
 
