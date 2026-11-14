@@ -9,13 +9,15 @@
 #    linux-arm64  → classsoftwarehub_<ver>_arm64.deb
 #    linux-x64    → classsoftwarehub_<ver>_amd64.deb
 #
-#  这个文件同时是「可复用工作流」：release.yml 用 workflow_call 调它，
-#  所以 tag 发版时构建逻辑只有这一份，不会出现 CI 和 Release 两套参数不一致。
+#  这个文件既是「构建流水线」也是「发版流水线」：
+#  推送 v* tag 会在构建矩阵全部成功后自动发一个 GitHub Release，
+#  发布说明直接取仓库里的 CHANGELOG.md，不用再手写一遍。
 #
 #  触发方式：
 #    · push 到任意分支 / PR  → 只构建，上传产物（不发布）
-#    · 手动 dispatch         → 同上
-#    · 被 release.yml 调用   → 构建并把版本号输出给调用方
+#    · push v* tag           → 构建完成后自动发 Release
+#    · 手动 dispatch         → 勾了「发布 Release」就顺便发一个
+#    · 被别的 workflow 调用  → 构建并把版本号输出给调用方
 # ─────────────────────────────────────────────────────────────
 name: Build
 
@@ -23,8 +25,22 @@ on:
   push:
     branches:
       - '**'
+    # 注意：push.branches 不匹配 tag，必须单独写 tags，否则推 tag 不会触发构建
+    tags:
+      - 'v*'
   pull_request:
   workflow_dispatch:
+    inputs:
+      version:
+        description: '版本号（留空：tag 用 tag 名，否则用 0.0.0-ci.<sha 前 7 位>）'
+        required: false
+        type: string
+        default: ''
+      publish:
+        description: '构建完成后是否发布 Release'
+        required: false
+        type: boolean
+        default: false
   workflow_call:
     inputs:
       version:
@@ -32,12 +48,17 @@ on:
         required: false
         type: string
         default: ''
+      publish:
+        description: '构建完成后是否发布 Release'
+        required: false
+        type: boolean
+        default: false
     outputs:
       version:
         description: '本次实际使用的版本号'
         value: ${{ jobs.build.outputs.version }}
 
-# 构建只需要读仓库；写 Release 的权限留给 release.yml 自己的 job
+#  默认只读；写 Release 的权限只给 release job（job 级权限会覆盖这里的默认值）
 permissions:
   contents: read
 
@@ -374,3 +395,141 @@ jobs:
           path: dist/
           if-no-files-found: error
           retention-days: 14
+
+  # ────────────────────────────────────────────────────────────
+  #  构建矩阵全部成功后，把产物汇总成 GitHub Release
+  #
+  #  触发条件：
+  #    · 推 v* tag                    → 发正式 Release（tag 名即版本号）
+  #    · 手动 dispatch 且勾了发布选项 → 发 Release（tag = v<版本号>，指向本次提交）
+  #    · 普通 push / PR               → 不发（否则每次提交都刷一条 Release）
+  #
+  #  发布说明取仓库里的 CHANGELOG.md；没有或为空时自动生成摘要兜底。
+  # ────────────────────────────────────────────────────────────
+  release:
+    name: 发布 Release
+    needs: build
+    if: >-
+      success() &&
+      (github.ref_type == 'tag' ||
+       (github.event_name == 'workflow_dispatch' && inputs.publish == true))
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    env:
+      VERSION: ${{ needs.build.outputs.version }}
+
+    steps:
+      - name: 检出代码（取 CHANGELOG）
+        uses: actions/checkout@v7
+
+      - name: 下载全部构建产物
+        uses: actions/download-artifact@v8
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: 准备发布说明
+        run: |
+          set -euo pipefail
+          NOTES=""
+          for f in CHANGELOG.md CHANGELOG.MD docs/CHANGELOG.md \
+                   ClassSoftwareHubCrossPlatformEdition/CHANGELOG.md \
+                   ClassSoftwareHubCrossPlatformEdition/CHANGELOG.MD; do
+            if [ -s "${f}" ]; then
+              NOTES="${f}"
+              break
+            fi
+          done
+          if [ -n "${NOTES}" ]; then
+            echo "发布说明取自 ${NOTES}"
+            cp "${NOTES}" release-notes.md
+          else
+            echo "⚠️ 仓库里没有非空的 CHANGELOG，改用自动生成的摘要"
+            {
+              echo "## ClassSoftwareHub v${VERSION}"
+              echo
+              echo "（仓库里没有 CHANGELOG.md，以下是自动生成的摘要）"
+              echo
+              echo "### 安装包"
+              for p in dist/*.exe dist/*.zip dist/*.deb; do
+                [ -e "${p}" ] || continue
+                pname="$(basename "${p}")"
+                psize="$(du -h "${p}" | cut -f1)"
+                printf -- '- `%s`（%s）\n' "${pname}" "${psize}"
+              done
+              echo
+              echo "### 校验"
+              echo
+              echo '每个包的 MD5 在 `checksums.md5` 里（md5sum 格式），本地可以这样对：'
+              echo
+              echo '```sh'
+              echo 'md5sum -c checksums.md5'
+              echo '```'
+              echo
+              echo "### macOS 第一次打开"
+              echo
+              echo '这个包没有签名和公证，第一次打开会被 Gatekeeper 拦。两个办法：'
+              echo
+              echo '1. 右键点应用 →「打开」→ 再点「打开」；'
+              echo '2. 或者在终端里先去掉隔离标记：'
+              echo
+              echo '```sh'
+              echo 'xattr -dr com.apple.quarantine ClassSoftwareHub.app'
+              echo '```'
+              echo
+              echo "### Linux"
+              echo
+              echo '```sh'
+              echo 'sudo apt install ./classsoftwarehub_*.deb'
+              echo '```'
+            } > release-notes.md
+          fi
+          echo "──── release-notes.md ────"
+          cat release-notes.md
+
+      - name: 生成校验和
+        run: |
+          set -euo pipefail
+          cd dist
+          rm -f checksums.md5
+          md5sum -b * > checksums.md5
+          cat checksums.md5
+
+      - name: 创建 / 更新 Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          IS_TAG_PUSH: ${{ github.ref_type == 'tag' }}
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          if [ "${IS_TAG_PUSH}" = "true" ]; then
+            TAG="${REF_NAME}"
+            EXTRA="--verify-tag"
+          else
+            TAG="v${VERSION}"
+            EXTRA="--target ${GITHUB_SHA}"
+          fi
+          TITLE="ClassSoftwareHub v${VERSION}"
+          PRE=""
+          case "${VERSION}" in
+            *-*) PRE="--prerelease" ;;
+          esac
+          echo "Release tag：${TAG}"
+          echo "─────────────────────"
+          if gh release view "${TAG}" >/dev/null 2>&1; then
+            echo "Release 已存在，覆盖上传资产"
+            gh release upload "${TAG}" dist/* --clobber
+            gh release edit "${TAG}" --title "${TITLE}" --notes-file release-notes.md
+          else
+            echo "创建 Release"
+            # shellcheck disable=SC2086
+            gh release create "${TAG}" dist/* \
+              --title "${TITLE}" \
+              --notes-file release-notes.md \
+              ${EXTRA} ${PRE}
+          fi
+          echo "──── Release 资产 ────"
+          gh release view "${TAG}" --json name,tagName,url,assets \
+            --jq '{tag: .tagName, name: .name, url: .url, assets: [.assets[] | {name: .name, size: .size}]}'
