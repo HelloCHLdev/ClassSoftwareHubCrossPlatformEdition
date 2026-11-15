@@ -7,7 +7,7 @@
 
 ## v1.0.0
 
-跨平台版首个测试版。
+修正更新逻辑。
 
 - 界面从 WinUI 3 移植到 Avalonia 12 + FluentAvalonia 3，一套代码跑 Windows / macOS / Linux
 - 三平台构建与自动发版流水线（GitHub Actions）：每次推送出一个 Release，附 MD5 校验和
