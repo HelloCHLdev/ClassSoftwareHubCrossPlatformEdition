@@ -438,65 +438,7 @@ jobs:
           path: dist
           merge-multiple: true
 
-      - name: 准备发布说明
-        run: |
-          set -euo pipefail
-          NOTES=""
-          for f in CHANGELOG.md CHANGELOG.MD docs/CHANGELOG.md \
-                   ClassSoftwareHubCrossPlatformEdition/CHANGELOG.md \
-                   ClassSoftwareHubCrossPlatformEdition/CHANGELOG.MD; do
-            if [ -s "${f}" ]; then
-              NOTES="${f}"
-              break
-            fi
-          done
-          if [ -n "${NOTES}" ]; then
-            echo "发布说明取自 ${NOTES}"
-            cp "${NOTES}" release-notes.md
-          else
-            echo "⚠️ 仓库里没有非空的 CHANGELOG，改用自动生成的摘要"
-            {
-              echo "## ClassSoftwareHub v${VERSION}"
-              echo
-              echo "（仓库里没有 CHANGELOG.md，以下是自动生成的摘要）"
-              echo
-              echo "### 安装包"
-              for p in dist/*.exe dist/*.zip dist/*.deb; do
-                [ -e "${p}" ] || continue
-                pname="$(basename "${p}")"
-                psize="$(du -h "${p}" | cut -f1)"
-                printf -- '- `%s`（%s）\n' "${pname}" "${psize}"
-              done
-              echo
-              echo "### 校验"
-              echo
-              echo '每个包的 MD5 在 `checksums.md5` 里（md5sum 格式），本地可以这样对：'
-              echo
-              echo '```sh'
-              echo 'md5sum -c checksums.md5'
-              echo '```'
-              echo
-              echo "### macOS 第一次打开"
-              echo
-              echo '这个包没有签名和公证，第一次打开会被 Gatekeeper 拦。两个办法：'
-              echo
-              echo '1. 右键点应用 →「打开」→ 再点「打开」；'
-              echo '2. 或者在终端里先去掉隔离标记：'
-              echo
-              echo '```sh'
-              echo 'xattr -dr com.apple.quarantine ClassSoftwareHub.app'
-              echo '```'
-              echo
-              echo "### Linux"
-              echo
-              echo '```sh'
-              echo 'sudo apt install ./classsoftwarehub_*.deb'
-              echo '```'
-            } > release-notes.md
-          fi
-          echo "──── release-notes.md ────"
-          cat release-notes.md
-
+      # 先把文件名规整好，再生成发布说明 —— 说明里列的包名要跟最终资产名一致。
       - name: 规整资产文件名
         run: |
           set -euo pipefail
@@ -514,6 +456,73 @@ jobs:
             esac
           done
           ls -l dist/
+
+      - name: 准备发布说明
+        run: |
+          set -euo pipefail
+          # 发布说明的来源：优先用 ClassSoftwareHubCrossPlatformEdition/CHANGELOG.MD
+          # （应用代码所在子目录里的那份更新日志）；没有再退回仓库根目录等常见位置。
+          # .md / .MD 两种写法都试 —— Linux runner 上文件系统大小写敏感。
+          NOTES=""
+          for f in ClassSoftwareHubCrossPlatformEdition/CHANGELOG.MD \
+                   ClassSoftwareHubCrossPlatformEdition/CHANGELOG.md \
+                   CHANGELOG.md CHANGELOG.MD docs/CHANGELOG.md; do
+            if [ -s "${f}" ]; then
+              NOTES="${f}"
+              break
+            fi
+          done
+          if [ -n "${NOTES}" ]; then
+            echo "发布说明取自 ${NOTES}"
+            cp "${NOTES}" release-notes.md
+          else
+            echo "⚠️ 仓库里没有非空的 CHANGELOG，改用自动生成的摘要"
+            {
+              echo "## ClassSoftwareHub v${VERSION}"
+              echo
+              echo "（仓库里没有 CHANGELOG.md，以下是自动生成的摘要）"
+            } > release-notes.md
+          fi
+
+          # 固定追加：安装包清单 + 校验方法 + 各平台安装说明。
+          # 这些每个版本都适用，不能因为换了 CHANGELOG 就丢掉（macOS 没签名那个坑尤其要留着）。
+          {
+            echo
+            echo "### 安装包"
+            for p in dist/*.exe dist/*.zip dist/*.deb; do
+              [ -e "${p}" ] || continue
+              pname="$(basename "${p}")"
+              psize="$(du -h "${p}" | cut -f1)"
+              printf -- '- `%s`（%s）\n' "${pname}" "${psize}"
+            done
+            echo
+            echo "### 校验"
+            echo
+            echo '每个包的 MD5 在 `checksums.md5` 里（md5sum 格式），本地可以这样对：'
+            echo
+            echo '```sh'
+            echo 'md5sum -c checksums.md5'
+            echo '```'
+            echo
+            echo "### macOS 第一次打开"
+            echo
+            echo '这个包没有签名和公证，第一次打开会被 Gatekeeper 拦。两个办法：'
+            echo
+            echo '1. 右键点应用 →「打开」→ 再点「打开」；'
+            echo '2. 或者在终端里先去掉隔离标记：'
+            echo
+            echo '```sh'
+            echo 'xattr -dr com.apple.quarantine ClassSoftwareHub.app'
+            echo '```'
+            echo
+            echo "### Linux"
+            echo
+            echo '```sh'
+            echo 'sudo apt install ./classsoftwarehub_*.deb'
+            echo '```'
+          } >> release-notes.md
+          echo "──── release-notes.md ────"
+          cat release-notes.md
 
       - name: 生成校验和
         run: |
