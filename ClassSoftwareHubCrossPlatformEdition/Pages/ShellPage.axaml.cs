@@ -34,6 +34,13 @@ public sealed partial class ShellPage : UserControl
         ("settings", "设置",     typeof(SettingsPage), FASymbol.Settings),
     ];
 
+    /// <summary>
+    /// 暂时禁用的导航项：灰掉、点不动。
+    /// 「内置工具」页在跨平台版里还没搬完，先不许从左侧导航进；
+    /// 页面本身还在，首页那张「内置工具」卡片仍然进得去。
+    /// </summary>
+    private static readonly string[] DisabledMenuTags = ["tools"];
+
     private string _currentTag = "home";
     private bool _suppressNavEvents;
 
@@ -54,7 +61,12 @@ public sealed partial class ShellPage : UserControl
     {
         Nav.MenuItems.Clear();
         foreach (var (tag, title, _, icon) in Menu)
-            Nav.MenuItems.Add(NewItem(tag, title, icon));
+        {
+            var item = NewItem(tag, title, icon);
+            // 禁用的项：灰着、点不动
+            if (DisabledMenuTags.Contains(tag)) item.IsEnabled = false;
+            Nav.MenuItems.Add(item);
+        }
 
         Nav.FooterMenuItems.Clear();
         foreach (var (tag, title, _, icon) in FooterMenu)
@@ -218,7 +230,9 @@ public sealed partial class ShellPage : UserControl
             var item = Nav.MenuItems.Concat(Nav.FooterMenuItems)
                 .OfType<FANavigationViewItem>()
                 .FirstOrDefault(i => i.Tag as string == tag);
-            if (item is not null) Nav.SelectedItem = item;
+            // 禁用的项选不中（Avalonia 的 ISelectable.CanSelect 跟 IsEnabled 走），
+            // 这里自己先挡一道，免得白跑一趟、行为也说不清。
+            if (item is not null && item.IsEnabled) Nav.SelectedItem = item;
         }
         finally
         {

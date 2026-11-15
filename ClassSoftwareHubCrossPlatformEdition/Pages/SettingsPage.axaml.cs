@@ -31,6 +31,9 @@ namespace ClassSoftwareHubCrossPlatformEdition.Pages;
 /// </summary>
 public sealed partial class SettingsPage : UserControl
 {
+    /// <summary>跨平台版自己的 issue 页面（说明条上「去 GitHub 提 issue」按钮用的）。</summary>
+    private const string IssuesUrl = "https://github.com/HelloCHLdev/ClassSoftwareHubCrossPlatformEdition/issues";
+
     private bool _loading = true;
     private bool _contentBusy;
 
@@ -446,6 +449,9 @@ public sealed partial class SettingsPage : UserControl
         var url = UiKit.FindTag(e);
         if (!string.IsNullOrEmpty(url)) UiKit.OpenExternal(url);
     }
+
+    /// <summary>项目说明条上的「去 GitHub 提 issue」：把 issue 页面交给系统默认浏览器。</summary>
+    private void ReportIssue_Click(object? sender, RoutedEventArgs e) => UiKit.OpenExternal(IssuesUrl);
 
     // ── 版本记录（本机运行过的版本） ────────────────────────────
 

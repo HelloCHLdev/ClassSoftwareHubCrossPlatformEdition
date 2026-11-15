@@ -64,6 +64,18 @@
                     <TextBlock x:Name="AboutVersion" FontSize="32" FontWeight="Bold" Margin="0,6,0,0"
                                Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}" />
                     <TextBlock x:Name="AboutSiteVersion" FontSize="13" Opacity="0.75" />
+
+                    <!-- 项目说明：跨平台版定位 + 测试状态提示 -->
+                    <ui:FAInfoBar Margin="0,12,0,0"
+                                  IsOpen="True"
+                                  IsClosable="False"
+                                  Severity="Informational"
+                                  Title="关于本项目"
+                                  Message="该项目为 ClassSoftwareHub Desktop（桌面版）的跨平台版本，旨在为 Linux 一体机实现与 Windows 版一样的功能。它仍处于测试状态，可能并不稳定，如遇到问题请理性发表 issue！">
+                        <ui:FAInfoBar.ActionButton>
+                            <Button Content="去 GitHub 提 issue" Click="ReportIssue_Click" />
+                        </ui:FAInfoBar.ActionButton>
+                    </ui:FAInfoBar>
                 </StackPanel>
 
                 <!-- 相关链接（在版本号下面，跟首页那行同款） -->
@@ -76,6 +88,7 @@
                         </ItemsPanelTemplate>
                     </ItemsControl.ItemsPanel>
                 </ItemsControl>
+                
 
                 <!-- ===== 外观 ===== -->
                 <TextBlock Text="外观" FontSize="20" FontWeight="Bold" Margin="0,12,0,0" />

@@ -29,11 +29,11 @@ public static class ShellConfig
     //   · 预览版（insider）→ 预发布 Release ＋ 非预发布（预览用户也能跟上正式版）
     // ════════════════════════════════════════════════════════════════
 
-    /// <summary>更新仓库 owner。</summary>
-    public const string UpdateRepoOwner = "c1201y";
+    /// <summary>更新仓库 owner（跨平台版自己的仓库）。</summary>
+    public const string UpdateRepoOwner = "HelloCHLdev";
 
-    /// <summary>更新仓库名。</summary>
-    public const string UpdateRepoName = "ClassSoftwareHub-Desktop";
+    /// <summary>更新仓库名（跨平台版自己的仓库）。</summary>
+    public const string UpdateRepoName = "ClassSoftwareHubCrossPlatformEdition";
 
     /// <summary>可选：GitHub 令牌（留空走匿名）。</summary>
     public const string UpdateToken = "";

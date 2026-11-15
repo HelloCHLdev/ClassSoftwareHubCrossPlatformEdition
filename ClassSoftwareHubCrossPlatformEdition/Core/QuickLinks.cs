@@ -25,7 +25,7 @@ public static class QuickLinks
         // 「项目仓库」= 桌面版自己的仓库（跟更新通道同一个仓库）
         var repoUrl = $"https://github.com/{ShellConfig.UpdateRepoOwner}/{ShellConfig.UpdateRepoName}";
         if (ShellConfig.UpdateRepoOwner.Length == 0 || ShellConfig.UpdateRepoName.Length == 0)
-            repoUrl = ui.T("about.repository-url", "https://github.com/c1201y/ClassSoftwareHub-Desktop");
+            repoUrl = ui.T("about.repository-url", "https://github.com/HelloCHLdev/ClassSoftwareHubCrossPlatformEdition");
 
         return new List<QuickLink>
         {
